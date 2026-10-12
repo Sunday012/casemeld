@@ -1,0 +1,12 @@
+<div id="answer" class="w-full">
+  <div class="h-48 w-full rounded mb-5 p-3 bg-gray-100">
+    <!-- Answer will be updated here -->
+  </div>
+</div>
+
+<%= turbo_frame_tag "new_question" do %>
+  <%= form_with url: questions_path, method: :post, data: { turbo_frame: "new_question" }, local: false do |f| %>
+    <%= f.text_field :question, class: 'w-full rounded', placeholder: 'Type your question' %>
+    <%= f.submit 'Submit', class: 'hidden' %>
+  <% end %>
+<% end %>

@@ -1,24 +1,35 @@
-# README
+# CaseMeld retrieval API
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+This Rails API finds complaints related to a submitted customer message. Pinecone performs both embedding and semantic search with its hosted `llama-text-embed-v2` model.
 
-Things you may want to cover:
+## Configuration
 
-* Ruby version
+Copy `.env.example` to `.env` and set:
 
-* System dependencies
+```text
+PINECONE_API_KEY=your-key
+PINECONE_HOST=https://your-index-host.svc.pinecone.io
+PINECONE_NAMESPACE=complaints
+FRONTEND_ORIGIN=http://localhost:3000
+```
 
-* Configuration
+The Pinecone index must use integrated embedding with a `text` field map. Follow `../rag/README.md` to create and populate it.
 
-* Database creation
+## Run locally
 
-* Database initialization
+```bash
+bundle install
+bin/rails server -p 3001
+```
 
-* How to run the test suite
+Search with:
 
-* Services (job queues, cache servers, search engines, etc.)
+```bash
+curl http://localhost:3001/api/v1/questions \
+  -H 'Content-Type: application/json' \
+  -d '{"question":"I was charged twice and support has not returned my money."}'
+```
 
-* Deployment instructions
+## Deploy
 
-* ...
+Deploy the `backend` working directory with internal port `3001`. Set `RAILS_ENV=production`, `PINECONE_API_KEY`, `PINECONE_HOST`, `PINECONE_NAMESPACE`, `FRONTEND_ORIGIN`, and a generated `SECRET_KEY_BASE` in the hosting environment.

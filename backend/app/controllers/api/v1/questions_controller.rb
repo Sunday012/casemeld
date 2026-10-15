@@ -7,31 +7,18 @@ module Api
           return render json: { error: "Complaint must be between 30 and 2,400 characters." }, status: :bad_request
         end
 
-        openai_client = OpenAI::Client.new(access_token: ENV.fetch("OPENAI_API_KEY"))
-
-        embedding_response = openai_client.embeddings(parameters: {
-          model: "text-embedding-3-large",
-          input: question_text
-        })
-
-        embedding = embedding_response.dig("data", 0, "embedding")
-
-        return render json: { error: "Embedding service returned no result." }, status: :unprocessable_entity if embedding.blank?
-
-        result = PineconeService.new.query(embedding)
-        matches = Array(result["matches"]).filter_map do |match|
-          metadata = JSON.parse(match.dig("metadata", "text").to_s)
+        result = PineconeService.new.search(question_text)
+        matches = Array(result.dig("result", "hits")).map do |hit|
+          fields = hit.fetch("fields", {})
           {
-            id: match["id"],
-            similarity: match["score"],
-            complaint_what_happened: metadata["complaint_what_happened"],
-            issue: metadata["issue"],
-            sub_issue: metadata["sub_issue"],
-            product: metadata["product"],
-            tags: metadata["tags"]
+            id: hit["_id"] || hit["id"],
+            similarity: hit["_score"] || hit["score"],
+            complaint_what_happened: fields["text"],
+            issue: fields["issue"],
+            sub_issue: fields["sub_issue"],
+            product: fields["product"],
+            tags: fields["tags"]
           }
-        rescue JSON::ParserError
-          nil
         end
 
         render json: { question: question_text, results: matches }, status: :ok

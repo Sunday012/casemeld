@@ -31,6 +31,8 @@ npm run build
 
 ## Optional retrieval service
 
-The Rails app in `backend/` remains available for teams that want OpenAI embeddings and Pinecone retrieval. Copy `backend/.env.example` to `backend/.env`, provide the required values, install the bundle, and run Rails on port 3001. Secrets are no longer stored in source code.
+The Rails app in `backend/` provides semantic complaint retrieval through Pinecone. It uses Pinecone's hosted `llama-text-embed-v2` model, so no OpenAI account or key is required. Copy `backend/.env.example` to `backend/.env`, provide the Pinecone values, install the bundle, and run Rails on port 3001.
+
+Create the integrated-embedding index and load the complaint records by following `rag/README.md` before starting the API.
 
 The frontend intentionally uses its built-in deterministic analysis by default. This keeps local development fast and makes the product useful before external services are configured.

@@ -53,7 +53,7 @@ export default function LandingPage() {
         <div className="folio-grid" aria-hidden="true" />
         <div className="folio-hero-inner shell">
           <div className="folio-kicker"><span className="folio-mini-mark" aria-hidden="true" /><span>Built for the moment a complaint becomes a signal</span></div>
-          <h1>Know what customers need—<em>and what your team should do next.</em></h1>
+          <h1>Know what customers need. <em>See what your team should do next.</em></h1>
           <p>CaseMeld turns messy complaint text into clear priorities, connected cases, and an actionable response plan in seconds.</p>
           <div className="folio-actions">
             <Link href="/analyze" className="folio-primary-cta">Try a complaint <span><ArrowRight size={18} /></span></Link>

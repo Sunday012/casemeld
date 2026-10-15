@@ -1,10 +1,10 @@
-# fly.toml app configuration file generated for backend-white-glitter-696 on 2024-08-18T12:13:04+05:00
+# Fly.io configuration for the CaseMeld Rails API.
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'backend-white-glitter-696'
-primary_region = 'sin'
+app = 'casemeld-api-sunday012'
+primary_region = 'ams'
 console_command = '/rails/bin/rails console'
 
 [build]

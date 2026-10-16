@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, CheckCircle2, Clock3, Link2, Trash2, UserRound } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Clock3, Link2, LoaderCircle, Trash2, UserRound } from "lucide-react";
 import { useComplaints } from "@/components/complaint-provider";
 import { CaseStatus, formatDate, priorityClass } from "@/lib/complaints";
 
@@ -11,14 +11,22 @@ const statuses: CaseStatus[] = ["New", "In review", "Escalated", "Resolved"];
 export default function CaseDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const { cases, deleteCase, updateStatus } = useComplaints();
+  const { cases, deleteCase, updateStatus, ready, error } = useComplaints();
   const item = cases.find((entry) => entry.id === id);
-  if (!item) return <main className="page-shell shell"><div className="empty-state panel"><h1>Case not found</h1><p>This case may have been removed from the local library.</p><Link href="/cases" className="button button-primary">Back to cases</Link></div></main>;
+
+  async function handleDelete() {
+    if (!item) return;
+    await deleteCase(item.id);
+    router.push("/cases");
+  }
+
+  if (!ready) return <main className="page-shell shell"><div className="empty-state panel"><LoaderCircle className="spin" size={28} /><h1>Loading case</h1></div></main>;
+  if (!item) return <main className="page-shell shell"><div className="empty-state panel"><h1>{error ? "Case data is unavailable" : "Case not found"}</h1><p>{error || "This case may have been removed from the shared case library."}</p><Link href="/cases" className="button button-primary">Back to cases</Link></div></main>;
 
   return (
     <main className="page-shell shell detail-page">
       <Link href="/cases" className="back-link"><ArrowLeft size={16} /> Back to all cases</Link>
-      <section className="detail-heading"><div><div className="detail-kicker"><span>{item.id}</span><b className={priorityClass(item.priority)}>{item.priority}</b></div><h1>{item.title}</h1><p>{item.summary}</p></div><div className="detail-actions"><select aria-label="Case status" value={item.status} onChange={(event) => updateStatus(item.id, event.target.value as CaseStatus)}>{statuses.map((status) => <option key={status}>{status}</option>)}</select><button className="icon-button danger" type="button" aria-label="Delete case" onClick={() => { deleteCase(item.id); router.push("/cases"); }}><Trash2 size={17} /></button></div></section>
+      <section className="detail-heading"><div><div className="detail-kicker"><span>{item.id}</span><b className={priorityClass(item.priority)}>{item.priority}</b></div><h1>{item.title}</h1><p>{item.summary}</p></div><div className="detail-actions"><select aria-label="Case status" value={item.status} onChange={(event) => void updateStatus(item.id, event.target.value as CaseStatus)}>{statuses.map((status) => <option key={status}>{status}</option>)}</select><button className="icon-button danger" type="button" aria-label="Delete case" onClick={() => void handleDelete()}><Trash2 size={17} /></button></div></section>
       <div className="detail-grid">
         <div className="detail-main">
           <section className="panel detail-section"><p className="eyebrow">Original complaint</p><blockquote>{item.content}</blockquote><div className="source-line"><span><UserRound size={14} /> {item.customer}</span><span>{item.channel}</span><span>{formatDate(item.createdAt)}</span></div></section>

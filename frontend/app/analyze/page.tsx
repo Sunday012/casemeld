@@ -39,6 +39,7 @@ export default function AnalyzePage() {
   const [content, setContent] = useState("");
   const [analysis, setAnalysis] = useState<ComplaintAnalysis | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [retrievalStatus, setRetrievalStatus] = useState<{ tone: "live" | "fallback"; message: string } | null>(null);
   const words = useMemo(() => content.trim() ? content.trim().split(/\s+/).length : 0, [content]);
@@ -78,10 +79,17 @@ export default function AnalyzePage() {
     }
   }
 
-  function saveCase() {
+  async function saveCase() {
     if (!analysis) return;
-    const saved = addCase(content, analysis);
-    router.push(`/cases/${saved.id}`);
+    setSaving(true);
+    setError("");
+    try {
+      const saved = await addCase(content, analysis);
+      router.push(`/cases/${saved.id}`);
+    } catch (saveError) {
+      setError(saveError instanceof Error ? saveError.message : "CaseMeld could not save this case.");
+      setSaving(false);
+    }
   }
 
   function reset() { setContent(""); setAnalysis(null); setError(""); setRetrievalStatus(null); }
@@ -119,7 +127,8 @@ export default function AnalyzePage() {
                 ? <Link href={`/cases/${item.id}`} className="related-case" key={item.id}>{content}</Link>
                 : <div className="related-case" key={item.id}>{content}</div>;
             }) : <p className="empty-copy">No close match yet. Saving this case will improve the working case library.</p>}</div>
-            <button type="button" className="button button-primary save-button" onClick={saveCase}>Save as case <ArrowRight size={17} /></button>
+            {error && <p className="form-error">{error}</p>}
+            <button type="button" className="button button-primary save-button" onClick={() => void saveCase()} disabled={saving}>{saving ? <><LoaderCircle className="spin" size={17} /> Saving case…</> : <>Save as case <ArrowRight size={17} /></>}</button>
           </section>
         )}
       </div>

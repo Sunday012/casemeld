@@ -8,16 +8,14 @@ import {
   CheckCircle2,
   Clock3,
   Layers3,
-  TrendingDown,
+  RefreshCw,
 } from "lucide-react";
 import { BrandGlyph } from "@/components/brand-glyph";
 import { useComplaints } from "@/components/complaint-provider";
 import { formatDate, priorityClass } from "@/lib/complaints";
 
-const metricBars = [42, 68, 51, 76, 62, 84, 72];
-
 export default function DashboardPage() {
-  const { cases } = useComplaints();
+  const { cases, error, ready, refresh } = useComplaints();
   const active = cases.filter((item) => item.status !== "Resolved").length;
   const urgentCases = cases
     .filter((item) => item.status !== "Resolved" && (item.priority === "Critical" || item.priority === "High"))
@@ -31,6 +29,19 @@ export default function DashboardPage() {
     }, {}),
   ).sort((a, b) => b[1] - a[1]);
   const leadingCategory = categories[0]?.[0] ?? "No signal yet";
+  const leadingCount = categories[0]?.[1] ?? 0;
+  const recentActivity = Array.from({ length: 7 }, (_, offset) => {
+    const date = new Date();
+    date.setHours(0, 0, 0, 0);
+    date.setDate(date.getDate() - (6 - offset));
+    const nextDate = new Date(date);
+    nextDate.setDate(nextDate.getDate() + 1);
+    return cases.filter((item) => {
+      const createdAt = new Date(item.createdAt);
+      return createdAt >= date && createdAt < nextDate;
+    }).length;
+  });
+  const maxRecentActivity = Math.max(...recentActivity, 0);
 
   return (
     <main className="workspace-shell">
@@ -47,27 +58,29 @@ export default function DashboardPage() {
         </div>
       </section>
 
+      {error && <section className="workspace-data-alert"><span><RefreshCw size={15} /> Live case data is unavailable: {error}</span><button type="button" onClick={() => void refresh()}>Try again</button></section>}
+
       <section className="workspace-metrics" aria-label="Case metrics">
         <article className="workspace-metric metric-dark">
           <div className="workspace-metric-head"><span>Active cases</span><span className="workspace-metric-icon"><Layers3 size={16} /></span></div>
-          <strong>{active}</strong>
+          <strong>{ready && !error ? active : "—"}</strong>
           <div className="workspace-metric-foot"><span>Across {categories.length} categories</span><small>Live</small></div>
         </article>
         <article className="workspace-metric">
           <div className="workspace-metric-head"><span>Needs attention</span><span className="workspace-metric-icon warm"><AlertTriangle size={16} /></span></div>
-          <strong>{urgentCases.length}</strong>
+          <strong>{ready && !error ? urgentCases.length : "—"}</strong>
           <div className="workspace-metric-foot"><span>High and critical</span><small className="metric-warn">Action</small></div>
         </article>
         <article className="workspace-metric">
-          <div className="workspace-metric-head"><span>First response</span><span className="workspace-metric-icon blue"><Clock3 size={16} /></span></div>
-          <strong>1.8<small>h</small></strong>
-          <div className="workspace-metric-foot positive"><span><TrendingDown size={13} /> 22% faster</span><small>7d</small></div>
+          <div className="workspace-metric-head"><span>Resolved cases</span><span className="workspace-metric-icon blue"><CheckCircle2 size={16} /></span></div>
+          <strong>{ready && !error ? resolved : "—"}</strong>
+          <div className="workspace-metric-foot positive"><span>From the shared library</span><small>Live</small></div>
         </article>
         <article className="workspace-metric metric-chart">
           <div className="workspace-metric-head"><span>Resolution rate</span><span className="workspace-metric-icon plum"><CheckCircle2 size={16} /></span></div>
           <div className="workspace-metric-chartline">
-            <strong>{resolutionRate}<small>%</small></strong>
-            <div aria-hidden="true">{metricBars.map((height, index) => <i key={index} style={{ height: `${height}%` }} />)}</div>
+            <strong>{ready && !error ? resolutionRate : "—"}{ready && !error && <small>%</small>}</strong>
+            {maxRecentActivity > 0 && <div aria-hidden="true">{recentActivity.map((count, index) => <i key={index} style={{ height: `${Math.max(12, Math.round((count / maxRecentActivity) * 100))}%` }} />)}</div>}
           </div>
           <div className="workspace-metric-foot"><span>{resolved} resolved</span><small>7d</small></div>
         </article>
@@ -137,11 +150,11 @@ export default function DashboardPage() {
           </article>
 
           <article className="workspace-brief" id="brief">
-            <div className="brief-topline"><span><BrandGlyph size={14} /> CaseMeld brief</span><small>Emerging</small></div>
+            <div className="brief-topline"><span><BrandGlyph size={14} /> CaseMeld brief</span><small>Live</small></div>
             <div className="brief-mark" aria-hidden="true"><i /><i /><i /></div>
-            <h2>Repeat contacts are clustering around billing issues.</h2>
-            <p>Cases with a previous support interaction are more likely to need escalation. Give one owner the full history before replying.</p>
-            <Link href="/cases">Review the pattern <span><ArrowRight size={15} /></span></Link>
+            <h2>{cases.length ? `${leadingCategory} is the leading contact driver.` : "No complaint signal yet."}</h2>
+            <p>{cases.length ? `${leadingCount} of ${cases.length} saved cases are in this category. ${urgentCases.length} active case${urgentCases.length === 1 ? "" : "s"} currently need high-priority attention.` : "Analyze and save complaints to build a live summary of the issues driving customer contact."}</p>
+            <Link href={cases.length ? "/cases" : "/analyze"}>{cases.length ? "Review the cases" : "Analyze the first complaint"} <span><ArrowRight size={15} /></span></Link>
           </article>
         </aside>
       </section>

@@ -11,6 +11,7 @@ PINECONE_API_KEY=your-key
 PINECONE_HOST=https://your-index-host.svc.pinecone.io
 PINECONE_NAMESPACE=complaints
 FRONTEND_ORIGIN=http://localhost:3000
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/casemeld_production
 ```
 
 The Pinecone index must use integrated embedding with a `text` field map. Follow `../rag/README.md` to create and populate it.
@@ -32,4 +33,8 @@ curl http://localhost:3001/api/v1/questions \
 
 ## Deploy
 
-Deploy the `backend` working directory with internal port `3001`. Set `RAILS_ENV=production`, `PINECONE_API_KEY`, `PINECONE_HOST`, `PINECONE_NAMESPACE`, `FRONTEND_ORIGIN`, and a generated `SECRET_KEY_BASE` in the hosting environment.
+Deploy the `backend` working directory as a Docker web service. Set `RAILS_ENV=production`, `DATABASE_URL`, `PINECONE_API_KEY`, `PINECONE_HOST`, `PINECONE_NAMESPACE`, `FRONTEND_ORIGIN`, and a generated `SECRET_KEY_BASE` in the hosting environment.
+
+On Render, create a PostgreSQL database and copy its **Internal Database URL** into the web service as `DATABASE_URL`. Set `FRONTEND_ORIGIN=https://casemeld.vercel.app`. The Docker entrypoint runs `db:prepare` during every deployment, so new migrations are applied automatically.
+
+The case API is available at `/api/v1/complaints`. Cases saved from the frontend are stored in PostgreSQL and shared across browsers and devices.

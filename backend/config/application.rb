@@ -29,14 +29,5 @@ module MyBackend
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
     config.autoload_paths += %W({config.root}/app/controllers)
-    # Middleware configuration for Rack::Cors to handle CORS settings.
-    config.middleware.insert_before 0, Rack::Cors do
-      allow do
-        origins '*' # Change this to the specific domains you want to allow
-        resource '*', 
-                 headers: :any, 
-                 methods: [:get, :post, :put, :patch, :delete, :options, :head]
-      end
-    end
   end
 end

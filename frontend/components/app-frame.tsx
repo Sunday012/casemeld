@@ -17,6 +17,7 @@ import {
 import { useState } from "react";
 import { AppHeader, Brand } from "@/components/app-header";
 import { BrandGlyph } from "@/components/brand-glyph";
+import { useComplaints } from "@/components/complaint-provider";
 import { cn } from "@/lib/utils";
 
 const workspaceNavigation = [
@@ -35,6 +36,7 @@ function pageTitle(pathname: string) {
 export function AppFrame({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const { cases, error, ready } = useComplaints();
 
   if (pathname === "/") {
     return <><AppHeader />{children}</>;
@@ -63,7 +65,7 @@ export function AppFrame({ children }: { children: React.ReactNode }) {
               <Link key={item.href} href={item.href} className={cn("product-nav-link", active && "active")} onClick={() => setMenuOpen(false)}>
                 <Icon size={17} />
                 <span>{item.label}</span>
-                {item.href === "/cases" && <small>5</small>}
+                {item.href === "/cases" && ready && !error && <small>{cases.length}</small>}
               </Link>
             );
           })}
@@ -74,9 +76,9 @@ export function AppFrame({ children }: { children: React.ReactNode }) {
         </nav>
 
         <div className="sidebar-system-card">
-          <div><span className="system-pulse" /><strong>Analysis online</strong></div>
-          <p>Pinecone retrieval and complaint classification are available.</p>
-          <span>Production workspace</span>
+          <div><span className={cn("system-pulse", error && "offline")} /><strong>{error ? "Case API unavailable" : ready ? "Analysis online" : "Connecting…"}</strong></div>
+          <p>{error ? "Live case data could not be loaded." : "Pinecone retrieval and persistent case storage are available."}</p>
+          <span>{error ? "Check service status" : "Production workspace"}</span>
         </div>
 
         <div className="product-sidebar-foot">
@@ -95,7 +97,7 @@ export function AppFrame({ children }: { children: React.ReactNode }) {
             <span>CaseMeld</span><i>/</i><strong>{pageTitle(pathname)}</strong>
           </div>
           <div className="product-topbar-actions">
-            <span className="topbar-status"><span /> Intelligence online</span>
+            <span className="topbar-status"><span className={error ? "offline" : ""} /> {error ? "Case API unavailable" : ready ? "Intelligence online" : "Connecting"}</span>
             <Link href="/analyze" className="button button-primary"><Plus size={16} /> New analysis</Link>
           </div>
         </header>

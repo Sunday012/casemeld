@@ -79,6 +79,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .sidebar-system-card { margin-top: auto; padding: 13px; border: 1px solid rgba(255,255,255,.08); border-radius: 10px; background: rgba(255,255,255,.035); }
 .sidebar-system-card > div { display: flex; align-items: center; gap: 7px; }
 .system-pulse { width: 6px; height: 6px; border-radius: 50%; background: #56d49d; box-shadow: 0 0 0 4px rgba(86,212,157,.08); }
+.system-pulse.offline, .topbar-status > span.offline { background: var(--orange); box-shadow: 0 0 0 4px rgba(224,94,52,.09); }
 .sidebar-system-card strong { font-size: 9px; }.sidebar-system-card p { margin: 9px 0 11px; color: rgba(238,244,240,.42); font-size: 8px; line-height: 1.55; }
 .sidebar-system-card > span { color: #a7d6c1; font-size: 8px; font-weight: 750; }
 .product-sidebar-foot { margin-top: 12px; padding-top: 11px; border-top: 1px solid rgba(255,255,255,.07); }
@@ -177,6 +178,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .workspace-actions { display: flex; gap: 8px; padding-top: 4px; }
 
 .workspace-metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 10px; }
+.workspace-data-alert { min-height: 42px; margin-bottom: 12px; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border: 1px solid #edc8b8; border-radius: 9px; color: #9c3f20; background: #fff5f0; font-size: 10px; font-weight: 650; }
+.workspace-data-alert span { display: flex; align-items: center; gap: 7px; }
+.workspace-data-alert button { border: 0; color: inherit; background: transparent; font: inherit; text-decoration: underline; cursor: pointer; }
 .workspace-metric { min-height: 157px; padding: 18px 19px 15px; display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 15px; background: var(--surface); box-shadow: 0 1px 0 rgba(255,255,255,.8); }
 .workspace-metric.metric-dark { color: white; border-color: var(--ink); background: var(--ink); box-shadow: 0 12px 32px rgba(23,37,31,.12); }
 .workspace-metric-head, .workspace-metric-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; }

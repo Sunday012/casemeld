@@ -406,6 +406,10 @@ html { scroll-behavior: smooth; }
 .composer-meta { display: flex; justify-content: space-between; gap: 15px; padding: 11px 2px 20px; color: var(--muted); font-size: 11px; }
 .example-button { padding: 0; border: 0; background: transparent; color: var(--green); font-weight: 750; }
 .form-error { margin: -8px 0 15px; color: #b83b32; font-size: 13px; }
+.retrieval-status { margin: -4px 0 14px; padding: 9px 11px; display: flex; align-items: center; gap: 7px; border-radius: 8px; font-size: 10px; font-weight: 650; }
+.retrieval-status > span { width: 6px; height: 6px; flex: 0 0 auto; border-radius: 50%; }
+.retrieval-status.live { color: #0b654a; background: #e0f3ea; }.retrieval-status.live > span { background: #2ca271; box-shadow: 0 0 0 3px rgba(44,162,113,.12); }
+.retrieval-status.fallback { color: #8a5d18; background: #f6edcf; }.retrieval-status.fallback > span { background: #c6922a; }
 .analyze-button, .save-button { width: 100%; min-height: 48px; }
 .privacy-note { display: flex; align-items: center; justify-content: center; gap: 6px; color: var(--muted); font-size: 11px; margin: 14px 0 0; }
 .spin { animation: spin 1s linear infinite; } @keyframes spin { to { transform: rotate(360deg); } }

@@ -8,6 +8,29 @@ import { useComplaints } from "@/components/complaint-provider";
 import { analyzeComplaint, ComplaintAnalysis, priorityClass } from "@/lib/complaints";
 
 const example = "I cancelled my subscription last month after speaking with support, but I was charged again today. This is the third time I have contacted you and every case gets closed without fixing the problem. I need the charge refunded immediately.";
+const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+
+type RetrievalMatch = {
+  id?: string;
+  similarity?: number;
+  complaint_what_happened?: string;
+  issue?: string;
+  sub_issue?: string;
+  product?: string;
+};
+
+type RetrievalResponse = { results?: RetrievalMatch[]; error?: string };
+
+function relatedCaseFromMatch(match: RetrievalMatch, index: number): ComplaintAnalysis["similarCases"][number] {
+  const score = Number(match.similarity ?? 0);
+  return {
+    id: match.id ?? `MATCH-${index + 1}`,
+    title: match.sub_issue || match.issue || match.product || `Related complaint ${index + 1}`,
+    category: match.product || match.issue || "Related complaint",
+    similarity: Math.max(0, Math.min(100, Math.round(score <= 1 ? score * 100 : score))),
+    resolution: match.complaint_what_happened || "Open the source record for the complete complaint context.",
+  };
+}
 
 export default function AnalyzePage() {
   const { cases, addCase } = useComplaints();
@@ -16,12 +39,42 @@ export default function AnalyzePage() {
   const [analysis, setAnalysis] = useState<ComplaintAnalysis | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [error, setError] = useState("");
+  const [retrievalStatus, setRetrievalStatus] = useState<{ tone: "live" | "fallback"; message: string } | null>(null);
   const words = useMemo(() => content.trim() ? content.trim().split(/\s+/).length : 0, [content]);
 
-  function runAnalysis() {
+  async function runAnalysis() {
     if (content.trim().length < 30) { setError("Add a little more detail so CaseMeld can identify the issue accurately."); return; }
-    setError(""); setAnalyzing(true);
-    window.setTimeout(() => { setAnalysis(analyzeComplaint(content, cases)); setAnalyzing(false); }, 450);
+    setError("");
+    setRetrievalStatus(null);
+    setAnalyzing(true);
+    const localAnalysis = analyzeComplaint(content, cases);
+
+    try {
+      if (!apiBaseUrl) throw new Error("The CaseMeld API URL is not configured.");
+      const response = await fetch(`${apiBaseUrl}/api/v1/questions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: content.trim() }),
+        signal: AbortSignal.timeout(75_000),
+      });
+      if (!response.ok) {
+        const failure = await response.json().catch(() => ({})) as RetrievalResponse;
+        throw new Error(failure.error || "Live retrieval failed.");
+      }
+      const payload = await response.json() as RetrievalResponse;
+
+      const backendMatches = (payload.results ?? []).slice(0, 3).map(relatedCaseFromMatch);
+      setAnalysis({ ...localAnalysis, similarCases: backendMatches.length ? backendMatches : localAnalysis.similarCases });
+      setRetrievalStatus({
+        tone: "live",
+        message: `Live retrieval connected · ${backendMatches.length} related record${backendMatches.length === 1 ? "" : "s"} found`,
+      });
+    } catch {
+      setAnalysis(localAnalysis);
+      setRetrievalStatus({ tone: "fallback", message: "Live retrieval is unavailable. Showing local analysis." });
+    } finally {
+      setAnalyzing(false);
+    }
   }
 
   function saveCase() {
@@ -30,7 +83,7 @@ export default function AnalyzePage() {
     router.push(`/cases/${saved.id}`);
   }
 
-  function reset() { setContent(""); setAnalysis(null); setError(""); }
+  function reset() { setContent(""); setAnalysis(null); setError(""); setRetrievalStatus(null); }
 
   return (
     <main className="page-shell shell analyze-page">
@@ -45,8 +98,9 @@ export default function AnalyzePage() {
           <textarea id="complaint" value={content} onChange={(event) => { setContent(event.target.value); setError(""); }} placeholder="Paste or type the complaint here…" maxLength={2400} />
           <div className="composer-meta"><button type="button" className="example-button" onClick={() => setContent(example)}>Use an example</button><span>{words} words · {content.length}/2,400</span></div>
           {error && <p className="form-error">{error}</p>}
-          <button type="button" className="button button-primary analyze-button" onClick={runAnalysis} disabled={analyzing}>{analyzing ? <><LoaderCircle className="spin" size={18} /> Analyzing complaint…</> : <><Sparkles size={18} /> Analyze complaint <CornerDownLeft size={16} /></>}</button>
-          <p className="privacy-note"><Check size={14} /> Analysis runs in your browser. No complaint text is sent elsewhere.</p>
+          {retrievalStatus && <p className={`retrieval-status ${retrievalStatus.tone}`}><span />{retrievalStatus.message}</p>}
+          <button type="button" className="button button-primary analyze-button" onClick={() => void runAnalysis()} disabled={analyzing}>{analyzing ? <><LoaderCircle className="spin" size={18} /> Searching complaint intelligence…</> : <><Sparkles size={18} /> Analyze complaint <CornerDownLeft size={16} /></>}</button>
+          <p className="privacy-note"><Check size={14} /> Complaint text is sent securely to your configured CaseMeld API for related-case retrieval.</p>
         </section>
 
         {!analysis ? (
@@ -58,7 +112,12 @@ export default function AnalyzePage() {
             <div className="result-facts"><div><span>Category</span><strong>{analysis.category}</strong><small>{analysis.subcategory}</small></div><div><span>Priority</span><strong className={priorityClass(analysis.priority)}>{analysis.priority}</strong><small><Clock3 size={13} /> Respond in {analysis.responseDue}</small></div><div><span>Sentiment</span><strong>{analysis.sentiment}</strong><small>Based on message language</small></div><div><span>Route to</span><strong>{analysis.owner}</strong><small>Suggested owner</small></div></div>
             <div className="result-section"><h3>Key signals</h3><div className="keyword-list">{analysis.keywords.map((keyword) => <span key={keyword}>{keyword}</span>)}</div></div>
             <div className="result-section"><h3>Recommended next actions</h3><ol className="action-list">{analysis.nextActions.map((action, index) => <li key={action}><span>{index + 1}</span>{action}</li>)}</ol></div>
-            <div className="result-section"><h3><Link2 size={16} /> Related cases</h3>{analysis.similarCases.length ? analysis.similarCases.map((item) => <Link href={`/cases/${item.id}`} className="related-case" key={item.id}><span><small>{item.id}</small><strong>{item.title}</strong></span><b>{item.similarity}% match</b></Link>) : <p className="empty-copy">No close match yet. Saving this case will improve the working case library.</p>}</div>
+            <div className="result-section"><h3><Link2 size={16} /> Related cases</h3>{analysis.similarCases.length ? analysis.similarCases.map((item) => {
+              const content = <><span><small>{item.id}</small><strong>{item.title}</strong></span><b>{item.similarity}% match</b></>;
+              return cases.some((caseItem) => caseItem.id === item.id)
+                ? <Link href={`/cases/${item.id}`} className="related-case" key={item.id}>{content}</Link>
+                : <div className="related-case" key={item.id}>{content}</div>;
+            }) : <p className="empty-copy">No close match yet. Saving this case will improve the working case library.</p>}</div>
             <button type="button" className="button button-primary save-button" onClick={saveCase}>Save as case <ArrowRight size={17} /></button>
           </section>
         )}

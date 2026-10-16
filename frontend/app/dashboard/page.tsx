@@ -8,9 +8,9 @@ import {
   CheckCircle2,
   Clock3,
   Layers3,
-  Sparkles,
   TrendingDown,
 } from "lucide-react";
+import { BrandGlyph } from "@/components/brand-glyph";
 import { useComplaints } from "@/components/complaint-provider";
 import { formatDate, priorityClass } from "@/lib/complaints";
 
@@ -137,7 +137,7 @@ export default function DashboardPage() {
           </article>
 
           <article className="workspace-brief" id="brief">
-            <div className="brief-topline"><span><Sparkles size={14} /> CaseMeld brief</span><small>Emerging</small></div>
+            <div className="brief-topline"><span><BrandGlyph size={14} /> CaseMeld brief</span><small>Emerging</small></div>
             <div className="brief-mark" aria-hidden="true"><i /><i /><i /></div>
             <h2>Repeat contacts are clustering around billing issues.</h2>
             <p>Cases with a previous support interaction are more likely to need escalation. Give one owner the full history before replying.</p>

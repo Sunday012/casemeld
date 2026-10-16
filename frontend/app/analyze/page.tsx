@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Check, Clock3, CornerDownLeft, FileSearch, Link2, LoaderCircle, RotateCcw, Sparkles } from "lucide-react";
+import { ArrowRight, Check, Clock3, CornerDownLeft, FileSearch, Link2, LoaderCircle, RotateCcw } from "lucide-react";
+import { BrandGlyph } from "@/components/brand-glyph";
 import { useComplaints } from "@/components/complaint-provider";
 import { analyzeComplaint, ComplaintAnalysis, priorityClass } from "@/lib/complaints";
 
@@ -99,7 +100,7 @@ export default function AnalyzePage() {
           <div className="composer-meta"><button type="button" className="example-button" onClick={() => setContent(example)}>Use an example</button><span>{words} words · {content.length}/2,400</span></div>
           {error && <p className="form-error">{error}</p>}
           {retrievalStatus && <p className={`retrieval-status ${retrievalStatus.tone}`}><span />{retrievalStatus.message}</p>}
-          <button type="button" className="button button-primary analyze-button" onClick={() => void runAnalysis()} disabled={analyzing}>{analyzing ? <><LoaderCircle className="spin" size={18} /> Searching complaint intelligence…</> : <><Sparkles size={18} /> Analyze complaint <CornerDownLeft size={16} /></>}</button>
+          <button type="button" className="button button-primary analyze-button" onClick={() => void runAnalysis()} disabled={analyzing}>{analyzing ? <><LoaderCircle className="spin" size={18} /> Searching complaint intelligence…</> : <><BrandGlyph size={18} /> Analyze complaint <CornerDownLeft size={16} /></>}</button>
           <p className="privacy-note"><Check size={14} /> Complaint text is sent securely to your configured CaseMeld API for related-case retrieval.</p>
         </section>
 
@@ -107,7 +108,7 @@ export default function AnalyzePage() {
           <aside className="analysis-empty"><div className="empty-orbit"><FileSearch size={30} /><span /><span /></div><h2>Your analysis will appear here</h2><p>CaseMeld looks for the issue, urgency, sentiment, key terms, and patterns across previous cases.</p><ol><li><span>1</span> Identify the underlying issue</li><li><span>2</span> Score priority and response time</li><li><span>3</span> Connect related complaints</li></ol></aside>
         ) : (
           <section className="analysis-results" aria-live="polite">
-            <div className="result-header"><div><p className="eyebrow">Analysis complete</p><h2>{analysis.title}</h2></div><span className="confidence"><Sparkles size={14} /> {analysis.confidence}% confidence</span></div>
+            <div className="result-header"><div><p className="eyebrow">Analysis complete</p><h2>{analysis.title}</h2></div><span className="confidence"><BrandGlyph size={14} /> {analysis.confidence}% confidence</span></div>
             <p className="result-summary">{analysis.summary}</p>
             <div className="result-facts"><div><span>Category</span><strong>{analysis.category}</strong><small>{analysis.subcategory}</small></div><div><span>Priority</span><strong className={priorityClass(analysis.priority)}>{analysis.priority}</strong><small><Clock3 size={13} /> Respond in {analysis.responseDue}</small></div><div><span>Sentiment</span><strong>{analysis.sentiment}</strong><small>Based on message language</small></div><div><span>Route to</span><strong>{analysis.owner}</strong><small>Suggested owner</small></div></div>
             <div className="result-section"><h3>Key signals</h3><div className="keyword-list">{analysis.keywords.map((keyword) => <span key={keyword}>{keyword}</span>)}</div></div>

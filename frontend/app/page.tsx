@@ -8,9 +8,9 @@ import {
   MessageSquareText,
   ScanSearch,
   ShieldCheck,
-  Sparkles,
   Target,
 } from "lucide-react";
+import { BrandGlyph } from "@/components/brand-glyph";
 
 const paths = [
   {
@@ -43,7 +43,7 @@ const steps = [
   { number: "1", title: "Read the signal", copy: "Identify the issue, sentiment, urgency, and language that matters.", icon: ScanSearch },
   { number: "2", title: "Connect the context", copy: "Match related cases and reveal the pattern behind repeat contact.", icon: GitMerge },
   { number: "3", title: "Set the response", copy: "Recommend an owner, response target, and practical next actions.", icon: Target },
-  { number: "4", title: "Learn from resolution", copy: "Keep the outcome attached so future cases begin with context.", icon: Sparkles },
+  { number: "4", title: "Learn from resolution", copy: "Keep the outcome attached so future cases begin with context.", icon: BrandGlyph },
 ];
 
 export default function LandingPage() {
@@ -59,7 +59,7 @@ export default function LandingPage() {
             <Link href="/analyze" className="folio-primary-cta">Try a complaint <span><ArrowRight size={18} /></span></Link>
             <Link href="/dashboard" className="folio-secondary-cta">Explore the workspace</Link>
           </div>
-          <div className="folio-proof"><div className="proof-orbit"><span>CM</span><span><ShieldCheck size={15} /></span><span><Sparkles size={15} /></span></div><div><b>Designed for focused support work</b><small>No account, integration, or setup required</small></div></div>
+          <div className="folio-proof"><div className="proof-orbit"><span>CM</span><span><ShieldCheck size={15} /></span><span><BrandGlyph size={15} /></span></div><div><b>Designed for focused support work</b><small>No account, integration, or setup required</small></div></div>
 
           <div className="folio-capability-rail" aria-label="CaseMeld capabilities">
             <span><Check size={13} /> Complaint classification</span><span><Check size={13} /> Priority and sentiment</span><span><Check size={13} /> Similar-case matching</span><span><Check size={13} /> Ownership recommendations</span>

@@ -12,11 +12,11 @@ import {
   Plus,
   ScanSearch,
   Settings,
-  Sparkles,
   X,
 } from "lucide-react";
 import { useState } from "react";
 import { AppHeader, Brand } from "@/components/app-header";
+import { BrandGlyph } from "@/components/brand-glyph";
 import { cn } from "@/lib/utils";
 
 const workspaceNavigation = [
@@ -70,7 +70,7 @@ export function AppFrame({ children }: { children: React.ReactNode }) {
 
           <span className="product-nav-label product-nav-label-spaced">Intelligence</span>
           <Link href="/dashboard#signals" className="product-nav-link" onClick={() => setMenuOpen(false)}><Activity size={17} /><span>Signals</span></Link>
-          <Link href="/dashboard#brief" className="product-nav-link" onClick={() => setMenuOpen(false)}><Sparkles size={17} /><span>CaseMeld brief</span></Link>
+          <Link href="/dashboard#brief" className="product-nav-link" onClick={() => setMenuOpen(false)}><BrandGlyph size={17} /><span>CaseMeld brief</span></Link>
         </nav>
 
         <div className="sidebar-system-card">

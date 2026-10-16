@@ -18,7 +18,7 @@ const marketingNavigation = [
   { label: "Who it helps", href: "#use-cases" },
 ];
 
-function Brand() {
+export function Brand() {
   return (
     <Link href="/" className="brand" aria-label="CaseMeld home">
       <span className="brand-mark" aria-hidden="true">

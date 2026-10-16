@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { AppHeader } from "@/components/app-header";
+import { AppFrame } from "@/components/app-frame";
 import { ComplaintProvider } from "@/components/complaint-provider";
 import "./globals.css";
 
@@ -38,11 +38,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" data-scroll-behavior="smooth">
       <body>
         <ComplaintProvider>
-          <AppHeader />
-          {children}
+          <AppFrame>{children}</AppFrame>
         </ComplaintProvider>
       </body>
     </html>

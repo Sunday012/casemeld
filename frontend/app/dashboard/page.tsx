@@ -117,7 +117,7 @@ export default function DashboardPage() {
         </div>
 
         <aside className="workspace-side-column">
-          <article className="workspace-panel signal-mix">
+          <article className="workspace-panel signal-mix" id="signals">
             <div className="workspace-panel-heading compact">
               <div><span className="section-label">Signal mix</span><h2>What is driving contact</h2></div>
               <span className="panel-count">{cases.length} total</span>
@@ -136,7 +136,7 @@ export default function DashboardPage() {
             </div>
           </article>
 
-          <article className="workspace-brief">
+          <article className="workspace-brief" id="brief">
             <div className="brief-topline"><span><Sparkles size={14} /> CaseMeld brief</span><small>Emerging</small></div>
             <div className="brief-mark" aria-hidden="true"><i /><i /><i /></div>
             <h2>Repeat contacts are clustering around billing issues.</h2>
